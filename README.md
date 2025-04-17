@@ -251,6 +251,20 @@ export default defineConfig({
 
 ```
 
+## Docker Volume
+```javascript
+
+'-> docker volume create <volume_name>' // create a volume
+'-> docker run -v <volume_name>:/app <image_name>' // run a container with a volume
+
+'-> docker volume ls' // list all volumes
+'-> docker volume inspect <volume_name>' // inspect a volume
+
+'-> docker volume rm <volume_name>' // remove a volume
+'-> docker volume prune' // remove all unused volumes
+
+```
+
 # demo main titles
 ## demo titles
 ```javascript
