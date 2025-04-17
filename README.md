@@ -11,7 +11,7 @@
 // Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 ```
 
-## set up Docker in windows10
+## Setup Docker in windows10
 ```javascript
 //------------------------------------
 
@@ -63,14 +63,15 @@
 '-> docker run -it ubuntu' // [ ls -> cd <folder-name> -> touch fileName.txt ]
 ```
 
-## Project_ONE: [ hello-docker ]
+# Project_ONE: [ hello-docker ]
+
+## make a folder name hello-docker:
 ```javascript
 //------------------------------------
 
-// make a folder name hello-docker:
-// hello-docker/
-// ├── Dockerfile
-// ├── hello.js
+hello-docker/
+├── Dockerfile
+├── hello.js
 
 // Dockerfile:
 FROM node:20-alpine
@@ -93,3 +94,169 @@ CMD ["node", "hello.js"] // CMD node hello.js
 '-> docker run -it <imageName> sh' // docker run -it hello-docker sh // [ -> 'node hello.js' ]
 
 ```
+
+# Project_TWO: [ React-basic ]
+
+## install vite react first
+
+```javascript
+'-> npm create vite@latest --template react' // vite react project react-basic
+'-> npm create vite@latest react-docker88'
+'-> yarn create vite'
+
+// make a folder name react-docker:
+'-> cd react-docker88' // cd to the project folder
+'-> npm create vite@latest .' //. dot = vite create from this folder
+
+```
+
+## folder structure:
+
+```javascript
+react-docker88/
+├── Dockerfile
+├── .dockerignore
+├── package.json
+├── yarn.lock
+├── vite.config.js
+├── ... ... others vite files
+
+// Dockerfile:
+FROM node:18-alpine3.17
+# FROM node:18.16.0-alpine3.18
+
+RUN addgroup -S app && adduser -S app -G app
+# Create a non-root user and switch to it
+
+USER root
+
+RUN mkdir -p /app && chown -R app:app /app
+
+WORKDIR /app
+# Set the working directory to /app
+
+COPY package.json yarn.lock ./
+# Copy package.json and package-lock.json to the working directory
+
+USER app
+# Switch to the non-root user
+
+RUN yarn install --legacy-peer-deps
+# Install dependencies
+
+USER root
+# Switch back to root user to copy the rest of the files
+
+RUN chown -R app:app /app
+# Copy the rest of the application files to the working directory
+
+COPY . .
+# Copy the rest of the application files to the working directory
+
+EXPOSE 5173
+# Expose the port that the application will run on 
+
+CMD ["yarn", "run", "dev"]
+# Start the application
+
+// .dockerignore:
+node_modules/
+
+// package.json:
+"scripts": {
+  "dev": "vite --host" //docker live update host connect network to localhost
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview"
+}
+
+// vite.config.js:
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    watch: {
+      usePolling: true, // Enable polling for file changes
+    },
+    host: true, // Allow access from outside the container
+    strictPort: true,
+    port: 5173, // Ensure the port matches the one exposed in Docker
+  },
+});
+
+```
+
+## Docker Build
+```javascript
+
+'-> docker build -t react-docker88 .' //t stands for tag name // . dot means current directory
+
+```
+
+## Run Container
+```javascript
+
+// To create and start a container from an image, use the docker run command.
+'-> docker run -p 5173:5173 react-docker88' //run any node app
+
+// live update with watching mode:[-v stands for volume]
+'-> docker run -p 5173:5173 -v "$(pwd):/app" react-docker88' //run image with live update
+'-> docker run -p 5173:5173 -v "$(pwd):/app" -v /app/node_modules react-docker88' //run image with live update with new volume
+
+```
+
+## Publish Docker Image
+```javascript
+
+// login, publish images, push images.
+'-> docker login' // login to docker hub
+'-> docker login <user_name>' // login to docker hub with user name
+'-> docker login dulon88'
+
+'-> docker tag <image_name> <user_Name>|<image_name>' // tag the image with user name
+'-> docker tag react-docker88 dulon88/react-docker88' // tag the image with user name
+'-> docker tag react-docker88 dulon88/react-docker88:latest' // tag the image with user name and latest version
+
+'-> docker push <user_Name>|<image_name>' // push the image to docker hub
+'-> docker push dulon88/react-docker88' // push the image to docker hub
+
+```
+
+## show/remove Docker Images
+```javascript
+
+'-> docker images'
+'-> docker rmi <image_id>'
+'-> docker rmi hg57654'
+
+```
+
+## show/ stop/ remove Containers
+```javascript
+
+// show Containers:
+'-> docker ps' //List Running Containers:
+'-> docker ps a' //To list all running containers, use.
+
+// Stop Containers:
+'-> docker stop <container_id>'
+'-> docker stop c3d'
+
+//Remove Container:
+'-> docker rm <container_id>'
+'-> docker rm c3d --force'
+'-> docker container prune --force' // remove/clear all containers
+
+```
+
+# demo main titles
+## demo titles
+```javascript
+
+point 1
+point 2
+
+```
+
