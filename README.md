@@ -265,7 +265,159 @@ export default defineConfig({
 
 ```
 
-# demo main titles
+# Docker Compose System[many containers run into single command]
+## Project_THREE:[ mern-stack ] (with Docker compose)
+
+## folder structure:
+```javascript
+
+mern-stack/
+├── frontend/
+      ├── Dockerfile
+      ├── package.json
+      ├── vite.config.js
+      ├── ... ... other files
+├── backend/
+      ├── Dockerfile
+      ├── ... ... other files
+├── compose.yaml
+
+```
+
+## Docker compose commands(optional or important)
+```javascript
+
+'-> docker init' // create a docker compose file in the current directory
+'-> docker init <project_name>' // create a docker compose file in the current directory with project name
+'-> docker init MERN_STACK' // create a docker compose file in the current directory with project name
+'-> docker init MERN_STACK --compose' // create a docker compose file in the current directory with project name and compose file
+
+```
+
+## Dockerfile && compose.yaml
+```javascript
+// frontend/package.json:
+"scripts": {
+	"dev": "vite --host",
+	"build": "vite build",
+	"lint": "eslint .",
+	"preview": "vite preview"
+},
+
+// frontend/vite.config.js:
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    watch: {
+      usePolling: true, // Enable polling for file changes
+    },
+    host: true, // Allow access from outside the container
+    strictPort: true,
+    port: 5173, // Ensure the port matches the one exposed in Docker
+  },
+});
+
+// frontend/Dockerfile:
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev"]
+
+// backend/Dockerfile:
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8000
+CMD ["npm", "start"]
+
+// mern-stack/compose.yaml:
+version: '3.8'
+
+services:
+
+  web:
+    depends_on:
+      - api
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - BACKEND_URL=http://localhost:8000/
+    
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+
+  api:
+    depends_on:
+      - db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://db:27017/
+    
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
+
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - anime:/data/app
+
+volumes:
+  anime:
+
+```
+
+## Docker compose commands
+```javascript
+
+// both are together for building, running, and live time update:
+'-> docker compose up' // run the service
+'-> docker compose watch' // watch every change and update instance
+
+'-> docker compose down' // remove the containers
+
+'-> docker compose --version'; // check the version;
+'-> docker compose logs' // see the logs of all containers
+'-> docker compose logs <container_name>' // see the logs of a specific container
+'-> docker compose build' // build the image
+'-> docker compose ps' // list all containers
+
+'-> docker compose stop' // stop the containers
+'-> docker compose start' // start the containers
+
+
+```
+
 ## demo titles
 ```javascript
 
