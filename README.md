@@ -401,8 +401,9 @@ volumes:
 ```javascript
 
 // both are together for building, running, and live time update:
-'-> docker compose up' // run the service
-'-> docker compose watch' // watch every change and update instance
+'-> docker compose up' // upload this service
+'-> docker compose' // run the service
+'-> docker compose watch' // watch every change and update the instance
 //-----------------------------------------------------------------
 
 '-> docker compose down' // remove the containers
