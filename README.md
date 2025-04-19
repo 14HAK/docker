@@ -1,6 +1,6 @@
 # Docker && DockerHub
 
-## Docker && DockerHub
+### Docker && DockerHub
 ```javascript
 //------------------------------------
 
@@ -11,7 +11,7 @@
 // Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 ```
 
-## Setup Docker in windows10
+### Setup Docker in windows10
 ```javascript
 //------------------------------------
 
@@ -35,7 +35,7 @@
 '-> docker --version'
 ```
 
-## Understanding Basic Docker Concepts
+### Understanding Basic Docker Concepts
 ```javascript
 //------------------------------------
 
@@ -52,7 +52,7 @@
 // A Dockerfile contains a set of instructions for creating an image
 ```
 
-## Docker Commands Pull Docker Image
+### Docker Commands Pull Docker Image
 ```javascript
 //------------------------------------
 
@@ -63,9 +63,9 @@
 '-> docker run -it ubuntu' // [ ls -> cd <folder-name> -> touch fileName.txt ]
 ```
 
-# Project_ONE: [ hello-docker ]
+## Project_ONE: [ hello-docker ]
 
-## make a folder name hello-docker:
+### make a folder name hello-docker:
 ```javascript
 //------------------------------------
 
@@ -95,9 +95,9 @@ CMD ["node", "hello.js"] // CMD node hello.js
 
 ```
 
-# Project_TWO: [ React-basic ]
+## Project_TWO: [ React-basic ]
 
-## install vite react first
+### install vite react first
 
 ```javascript
 '-> npm create vite@latest --template react' // vite react project react-basic
@@ -110,7 +110,7 @@ CMD ["node", "hello.js"] // CMD node hello.js
 
 ```
 
-## folder structure:
+### folder structure:
 
 ```javascript
 react-docker88/
@@ -188,14 +188,14 @@ export default defineConfig({
 
 ```
 
-## Docker Build
+### Docker Build
 ```javascript
 
 '-> docker build -t react-docker88 .' //t stands for tag name // . dot means current directory
 
 ```
 
-## Run Container
+### Run Container
 ```javascript
 
 // To create and start a container from an image, use the docker run command.
@@ -207,7 +207,7 @@ export default defineConfig({
 
 ```
 
-## Publish Docker Image
+### Publish Docker Image
 ```javascript
 
 // login, publish images, push images.
@@ -224,7 +224,7 @@ export default defineConfig({
 
 ```
 
-## show/remove Docker Images
+### show/remove Docker Images
 ```javascript
 
 '-> docker images'
@@ -233,7 +233,7 @@ export default defineConfig({
 
 ```
 
-## show/ stop/ remove Containers
+### show/ stop/ remove Containers
 ```javascript
 
 // show Containers:
@@ -251,7 +251,7 @@ export default defineConfig({
 
 ```
 
-## Docker Volume
+### Docker Volume
 ```javascript
 
 '-> docker volume create <volume_name>' // create a volume
@@ -265,10 +265,10 @@ export default defineConfig({
 
 ```
 
-# Docker Compose System[many containers run into single command]
-## Project_THREE:[ mern-stack ] (with Docker compose)
+## Docker Compose System[many containers run into single command]
+### Project_THREE:[ mern-stack ] (with Docker compose)
 
-## folder structure:
+### folder structure:
 ```javascript
 
 mern-stack/
@@ -284,7 +284,7 @@ mern-stack/
 
 ```
 
-## Docker compose commands(optional or important)
+### Docker compose commands(optional or important)
 ```javascript
 
 '-> docker init' // create a docker compose file in the current directory
@@ -294,7 +294,7 @@ mern-stack/
 
 ```
 
-## Dockerfile && compose.yaml
+### Dockerfile && compose.yaml
 ```javascript
 // frontend/package.json:
 "scripts": {
@@ -397,7 +397,7 @@ volumes:
 
 ```
 
-## Docker compose commands
+### Docker compose commands
 ```javascript
 
 // both are together for building, running, and live time update:
@@ -417,10 +417,29 @@ volumes:
 '-> docker compose stop' // stop the containers
 '-> docker compose start' // start the containers
 
+```
+
+## Pull Docker Image And Modification Locally
+```javascript
+
+// pull the image from docker hub
+'-> docker pull dulon88/react-docker88'
+
+// Create a container from the image
+'-> docker run -dit --name <new container name> <image-name>' 
+// Create a container from the image
+'-> docker run -dit --name dulon88/react-docker88 <dulon88/react-docker88>' // if you need go to "-> cd dulon88/react-docker88" folder and modifying files and re-build image at same position and push into github for latest version.
+
+// Copy files from the container to your local machine
+'-> docker cp dulon88/react-docker88:/app ./new-one' // copy the files from the container to the host machine
+'-> code ./new-one' // goto new-one folder
+'-> docker build -t new-one .' // re-build or build new image
+// if folder name matched Docker pulled image name its re-builded
+
 
 ```
 
-## demo titles
+### demo titles
 ```javascript
 
 point 1
