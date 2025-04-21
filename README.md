@@ -406,16 +406,28 @@ volumes:
 '-> docker compose watch' // watch every change and update the instance
 //-----------------------------------------------------------------
 
-'-> docker compose down' // remove the containers
+// check the version
+'-> docker compose --version'
 
-'-> docker compose --version'; // check the version;
-'-> docker compose logs' // see the logs of all containers
-'-> docker compose logs <container_name>' // see the logs of a specific container
-'-> docker compose build' // build the image
+// To build and run all services, navigate to the directory containing the docker-compose.yml file and run:
+'-> docker-compose up --build'
+
+// To run the services in detached mode:
+'-> docker-compose up -d'
+
+// To stop containers without removing them:
+'-> docker-compose stop'
+
+// To remove containers after stopping:
+'-> docker-compose down'
+
+// To view logs from all services:
+'-> docker-compose logs -f'
+
+// To view logs of a specific service (e.g., app):
+'-> docker-compose logs -f app'
+
 '-> docker compose ps' // list all containers
-
-'-> docker compose stop' // stop the containers
-'-> docker compose start' // start the containers
 
 ```
 
