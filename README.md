@@ -1,5 +1,7 @@
 # Docker && DockerHub
 
+
+
 ### Docker && DockerHub
 ```javascript
 //------------------------------------
@@ -14,25 +16,27 @@
 ### Setup Docker in windows10
 ```javascript
 //------------------------------------
+// Download Docker Desktop:__
+'https://www.docker.com/products/docker-desktop'
 
-//WSL2 (Windows Subsystem for Linux) backend is recommended for the best experience:
-//Open PowerShell as Administrator and run the following command to enable WSL and Virtual Machine Platform.
+// WSL2 (Windows Subsystem for Linux) backend is recommended for the best experience:
+// Open PowerShell as Administrator and run the following command to enable WSL and Virtual Machine Platform.
 '-> wsl --install'
 
+// * Open Docker Desktop → Settings → General * Check ✅ "Use the WSL 2 based engine"
+
+// cmd install:__
 '-> dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart'
 
 '-> dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart'
 
-//Docker Hub:
-//sign in to docker hub.
+// Docker Hub:__
+// sign in to docker hub.
 'https://hub.docker.com/'
 
-//Download Docker Desktop:
-//During installation, make sure to select the option to use WSL 2 as the backend.
-'https://www.docker.com/products/docker-desktop/'
-
-//Verify Installation:
+// Verify Installation:
 '-> docker --version'
+
 ```
 
 ### Understanding Basic Docker Concepts
@@ -61,6 +65,10 @@
 '-> docker pull <docker_img_name>'
 '-> docker pull ubuntu'
 '-> docker run -it ubuntu' // [ ls -> cd <folder-name> -> touch fileName.txt ]
+
+'-> docker pull nginx'
+'-> docker run -d -p 80:80 nginx'
+
 ```
 
 ## Project_ONE: [ hello-docker ]
@@ -86,6 +94,7 @@ CMD ["node", "hello.js"] // CMD node hello.js
 '-> docker build -t hello-docker .' // . dot means current directory
 
 '-> docker images' // see docker all images
+'-> docker rmi <image_id>' // remove an image
 
 '-> docker run <imageName>' // docker run hello-docker
 '-> docker run -it <imageName>' // docker run -it hello-docker
@@ -262,6 +271,15 @@ export default defineConfig({
 
 '-> docker volume rm <volume_name>' // remove a volume
 '-> docker volume prune' // remove all unused volumes
+
+```
+
+### Docker Network
+```javascript
+
+'-> docker network create mynetwork' // create a custom network
+'-> docker run -d --network=mynetwork --name app myapp'
+'-> docker run -d --network=mynetwork --name db mongo' // Run Containers on the Same Network
 
 ```
 
@@ -448,6 +466,303 @@ volumes:
 '-> docker build -t new-one .' // re-build or build new image
 // if folder name matched Docker pulled image name its re-builded
 
+```
+# -----------------------------------------------------------
+## New Born 😂
+### .dockerignore
+```javascript
+
+//* .dockerignore:
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+
+```
+
+### Dockerfile For Mode [Build Stage || Production Stage]
+```javascript
+
+// # Build Stage
+// Uses Node.js 18 for building the app
+FROM node:18-alpine AS build
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+// Builds the optimized production files
+RUN npm run build 
+ 
+// # Production Stage
+// Uses Nginx to serve static files.
+FROM nginx:stable-alpine AS production
+
+// Copies the build output from the previous stage.
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+// Runs Nginx in the foreground.
+CMD ["nginx", "-g", "daemon off;"]
+
+
+```
+
+### Backend Dockerfile
+```javascript
+
+//* Backend Dockerfile:
+// Step 1: Use the official Node.js image
+FROM node:20-alpine
+
+// Step 2: Set working directory inside the container
+WORKDIR /app
+
+// Step 3: Copy package.json and package-lock.json
+COPY package*.json ./
+
+// Step 4: Install dependencies
+RUN npm install
+
+// Step 5: Copy the rest of the app's source code
+COPY . .
+
+// Step 6: Expose the port the app runs on
+EXPOSE 8000
+
+// Step 7: Command to run the app
+CMD ["npm", "start"]
+
+```
+
+### Frontend Dockerfile
+```javascript
+
+//* Frontend Dockerfile:
+// # Use official Node.js image:_
+// Step 1: Use the official Node.js image
+FROM node:20-alpine
+
+// # Set the working directory
+// Step 2: Set working directory inside the container
+// WORKDIR /usr/src/app
+WORKDIR /app
+
+// # Copy files:_
+// Step 3: Copy package.json and package-lock.json
+COPY package*.json ./
+
+// Step 4: Install dependencies
+RUN npm install
+
+// Step 5: Copy the rest of the app's source code
+COPY . .
+
+// # Expose port:_
+// Step 6: Build the React app for production
+EXPOSE 5173
+
+// # Start the app:_
+// Step 9: Command to serve the app
+CMD ["npm", "run", "dev"]
+
+```
+
+### compose.yaml
+```javascript
+
+//* compose.yaml:
+version: '3.8'
+services:
+
+  // # Frontend service  
+  web:
+    depends_on:
+      - api
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - BACKEND_URL=http://localhost:8000/
+
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+
+  // # Backend service
+  api:
+    depends_on:
+      - db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://db:27017/
+    
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
+
+  // # MongoDB service
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - anime:/data/app
+
+volumes:
+  anime:
+
+//---------------------------------others ways
+// volume:_
+// This setup allows your local changes to be mirrored inside the container.
+volumes:
+  - .:/app
+  - ./node_modules:/app/node_modules
+
+// others:_
+// 'stdin_open' and 'tty' Keep the container running and interactive.
+stdin_open: true
+tty: true
+
+// environment:_
+// variable passing to the container.
+env_file:
+  - .env
+
+// permission errors:_
+// Adjust file permissions or specify a user in the 'Dockerfile' using the 'USER' directive.
+// # Add before CMD
+USER node
+CMD ["npm", "run", "dev"]
+
+// Use updated caching options in volume mounts:__
+volumes:
+  - type: bind
+    source: ./app
+    target: /app
+    consistency: cached
+
+// Reducing image size:__
+// Use smaller base images: Alpine-based images are significantly smaller. Clean up after installing dependencies:
+
+// Each command in your Dockerfile creates a new layer. Combine commands where appropriate to reduce the number of layers.
+RUN npm install && npm cache clean --force
+
+// Docker for development with live-reloading:__
+RUN npm install --only=dev
+CMD ["npm", "run", "dev"]
+
+
+'-> docker build -t docker-app-dev .'
+'-> docker run -p 3000:3000 -v $(pwd)/src:/app/src docker-app-dev'
+
+// When using direct mongoDB atlas:__
+environment:
+  - MONGO_URI='<mongoDB_Atlas:mongodb+srv://myDatabaseUser:D1fficultP%40ssw0rd@cluster0.example.mongodb.net/?retryWrites=true&w=majority>'
+
+// Won networks:__
+// frontend + backend Dockerfile:
+networks:
+  - app-network
+
+// compose.yml:
+networks:
+  app-network:
+    driver: bridge
+
+// # Copy backend source code:__
+COPY backend/src ./src
+COPY backend/.env ./ 
+
+// for postGresql:__
+// frontend/backend Dockerfile:
+
+networks:
+  - app-network
+
+environment:
+  - PG_URI='<postgres://postgres:password@postgres:5432/mern_ts_db>'
+
+depends_on:
+  - postgres
+
+// compose.yaml:
+postgres:
+  image: postgres:13
+  container_name: postgres
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: password
+    POSTGRES_DB: mern_ts_db
+  ports:
+    - "5432:5432"
+  networks:
+    - app-network
+
+```
+
+### some Commands
+```javascript
+
+// If you have multiple stages in your Dockerfile and need to target a specific build stage (such as the build stage), you can use the '--target' option.
+//  Building with '--target build' creates a larger image because it includes the build tools and dependencies needed to compile your React app:__
+'-> docker build -t myapp .'
+'-> docker build -t my-react-app-dev --target build .'
+
+// Ensure you’re running the container interactively(continuous running):__
+'-> docker run -d -p 3000:3000 myapp'
+'-> docker run -it -p 5173:5173 my-react-app'
+
+'-> docker scan myapp' // Scan the image for vulnerabilities.
+
+// Performance problems on macOS and Windows:__
+// File-sharing mechanisms between the host system and Docker containers introduce significant overhead on macOS and Windows, especially when working with large repositories or projects containing many files. Traditional methods like osxfs and gRPC FUSE often struggle to scale efficiently in these environments.
+
+// Optimized for large projects: Handles monorepos or repositories with thousands of files efficiently.
+
+// Performance improvement: Resolves bottlenecks seen with older file-sharing mechanisms.
+
+// Real-time synchronization: Automatically syncs filesystem changes between the host and container in near real-time.
+
+// Reduced file ownership conflicts: Minimizes issues with file permissions between host and container.
+
+// .syncignore:
+node_modules
+.git/
+*.log
+
+
+// Docker Init [node]:__
+? What application platform does your project use? Node
+? What version of Node do you want to use? 18
+? Which package manager do you want to use? yarn
+? Do you want to run "yarn run build" before starting your server? Yes
+? What directory is your build output to? (comma-separate if multiple) output
+? What command do you want to use to start the app? node index.js
+? What port does your server listen on? 8000
 
 ```
 
