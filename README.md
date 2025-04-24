@@ -338,6 +338,12 @@ export default defineConfig({
   },
 });
 
+// backend/package.jon:_
+scripts:
+
+if TypeScript ||	ts-node-dev	"dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+if JavaScript ||	nodemon	"dev": "nodemon src/index.js"
+
 // frontend/Dockerfile:
 FROM node:20-alpine
 WORKDIR /app
@@ -369,16 +375,24 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
+
+    // Auto update new method
+    // cmd: docker compose up --build
+    volumes:
+      - ./web:/app
+      - /app/node_modules
     environment:
       - BACKEND_URL=http://localhost:8000/
-    
+
+    // Auto update old method no need version tag:
+    // cmd: docker compose up --watch --build
     develop:
       watch:
-        - path: ./frontend/package.json
+        - path: ./web/package.json
           action: rebuild
-        - path: ./frontend/package-lock.json
+        - path: ./web/package-lock.json
           action: rebuild
-        - path: ./frontend
+        - path: ./web
           target: /app
           action: sync
 
@@ -390,9 +404,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+
+    // Auto update new method
+    // cmd: docker compose up --build
+    volumes:
+      - ./web:/app
+      - /app/node_modules
     environment:
       - MONGO_URI=mongodb://db:27017/
-    
+
+    // Auto update old method no need version tag:
+    // cmd: docker compose up --watch --build
     develop:
       watch:
         - path: ./backend/package.json
@@ -682,6 +704,18 @@ CMD ["npm", "run", "dev"]
 // When using direct mongoDB atlas:__
 environment:
   - MONGO_URI='<mongoDB_Atlas:mongodb+srv://myDatabaseUser:D1fficultP%40ssw0rd@cluster0.example.mongodb.net/?retryWrites=true&w=majority>'
+
+// develop:_
+// real time update no need version tag:
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app/frontend
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
 // Won networks:__
 // frontend + backend Dockerfile:
