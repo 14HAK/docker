@@ -340,9 +340,16 @@ export default defineConfig({
 
 // backend/package.jon:_
 scripts:
+// if TypeScript ||	ts-node-dev	"dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+// if JavaScript ||	nodemon	"dev": "nodemon src/index.js"
 
-if TypeScript ||	ts-node-dev	"dev": "ts-node-dev --respawn --transpile-only src/index.ts"
-if JavaScript ||	nodemon	"dev": "nodemon src/index.js"
+{...
+"script":{
+  "dev":"ts-node-dev --respawn --transpile-only --poll src/index.ts",
+  "dev": "nodemon src/server.js"
+},
+  ...
+}
 
 // frontend/Dockerfile:
 FROM node:20-alpine
@@ -367,9 +374,9 @@ version: '3.8'
 
 services:
 
-  web:
+  frontend:
     depends_on:
-      - api
+      - backend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -379,24 +386,24 @@ services:
     // Auto update new method
     // cmd: docker compose up --build
     volumes:
-      - ./web:/app
+      - ./frontend:/app
       - /app/node_modules
     environment:
       - BACKEND_URL=http://localhost:8000/
 
-    // Auto update old method no need version tag:
+    // Auto update old method no need version 3.8 tag:
     // cmd: docker compose up --watch --build
     develop:
       watch:
-        - path: ./web/package.json
-          action: rebuild
-        - path: ./web/package-lock.json
-          action: rebuild
-        - path: ./web
-          target: /app
-          action: sync
+        - action: sync
+          path: ./frontend
+          target: /app/frontend
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
-  api:
+  backend:
     depends_on:
       - db
     build:
@@ -408,10 +415,10 @@ services:
     // Auto update new method
     // cmd: docker compose up --build
     volumes:
-      - ./web:/app
+      - ./backend:/app
       - /app/node_modules
     environment:
-      - MONGO_URI=mongodb://db:27017/
+      - MONGO_URI=mongodb://db:27017/anime
 
     // Auto update old method no need version tag:
     // cmd: docker compose up --watch --build
@@ -451,6 +458,8 @@ volumes:
 
 // To build and run all services, navigate to the directory containing the docker-compose.yml file and run:
 '-> docker-compose up --build'
+'-> docker-compose up'
+'-> docker-compose up --watch'
 
 // To run the services in detached mode:
 '-> docker-compose up -d'
