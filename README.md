@@ -493,8 +493,8 @@ volumes:
 
 // Copy files from the container to your local machine
 '-> docker cp <running container name>:/app ./<folder name you chose>' // copy the files from the container to the host machine
-'-> code ./new-one' // goto new-one folder
-'-> docker build -t new-one .' // re-build or build new image
+'-> code ./<folder name you chose>' // goto <folder name you chose> folder
+'-> docker build -t <folder name you chose> .' // re-build or build new image
 // if folder name matched Docker pulled image name its re-builded
 
 ```
