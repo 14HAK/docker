@@ -492,7 +492,7 @@ volumes:
 '-> docker run -dit --name dulon88/react-docker88 <dulon88/react-docker88>' // if you need go to "-> cd dulon88/react-docker88" folder and modifying files and re-build image at same position and push into github for latest version.
 
 // Copy files from the container to your local machine
-'-> docker cp dulon88/react-docker88:/app ./new-one' // copy the files from the container to the host machine
+'-> docker cp <running container name>:/app ./<folder name you chose>' // copy the files from the container to the host machine
 '-> code ./new-one' // goto new-one folder
 '-> docker build -t new-one .' // re-build or build new image
 // if folder name matched Docker pulled image name its re-builded
