@@ -231,6 +231,13 @@ export default defineConfig({
 '-> docker push <user_Name>|<image_name>' // push the image to docker hub
 '-> docker push dulon88/react-docker88' // push the image to docker hub
 
+// repush Docker Image into DockerHub.
+'-> docker build -t <your_image_name>:<tag> .' // rebuild Docker image locally: tag name lie "my-image:latest"
+'-> docker tag your_image_name:tag username/repository:tag' // Replace username/repository with your Docker Hub username and repository name
+
+'-> docker login'
+'-> docker push username/repository:tag'
+
 ```
 
 ### show/remove Docker Images
