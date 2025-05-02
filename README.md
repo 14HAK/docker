@@ -238,6 +238,14 @@ export default defineConfig({
 '-> docker login'
 '-> docker push username/repository:tag'
 
+//--------------
+
+docker login
+docker build -t <your-dockerhub-username>/<your-image-name>:<your-tag> .
+docker build --no-cache -t <your-dockerhub-username>/<your-image-name>:<your-tag> . // --no-cache rebuild from scratch:
+
+docker push <your-dockerhub-username>/<your-image-name>:<your-tag>
+
 ```
 
 ### show/remove Docker Images
